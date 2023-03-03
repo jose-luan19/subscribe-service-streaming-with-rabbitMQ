@@ -2,6 +2,7 @@
 using desafioBack.Models;
 using desafioBack.RabitMQ;
 using desafioBack.Services;
+using Models;
 
 namespace desafioBack.Controllers
 {
@@ -59,30 +60,6 @@ namespace desafioBack.Controllers
         public bool DeleteProduct(Guid Id)
         {
             return productService.DeleteProduct(Id);
-        }
-    }
-
-    public class InsertProduct
-    {
-        public string ProductName
-        {
-            get;
-            set;
-        }
-        public string ProductDescription
-        {
-            get;
-            set;
-        }
-        public int ProductPrice
-        {
-            get;
-            set;
-        }
-        public int ProductStock
-        {
-            get;
-            set;
         }
     }
 }
