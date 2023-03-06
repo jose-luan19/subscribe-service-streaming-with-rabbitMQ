@@ -15,7 +15,8 @@ var channel = connection.CreateModel();
 channel.QueueDeclare("product", exclusive: false);
 //Set Event object which listen message from chanel which is sent by producer
 var consumer = new EventingBasicConsumer(channel);
-consumer.Received += (model, eventArgs) => {
+consumer.Received += (model, eventArgs) =>
+{
     var body = eventArgs.Body.ToArray();
     var message = Encoding.UTF8.GetString(body);
     Console.WriteLine("Product message received: " + message);

@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using desafioBack.Models;
+﻿using desafioBack.Models;
 using desafioBack.RabitMQ;
 using desafioBack.Services;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 
 namespace desafioBack.Controllers
