@@ -1,5 +1,4 @@
-﻿using desafioBack.RabitMQ;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System.Text;
 namespace desafioBack.RabitMQ

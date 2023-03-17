@@ -1,6 +1,6 @@
 ﻿
 using desafioBack.Infra;
-using desafioBack.Models;
+using Models;
 
 namespace desafioBack.Services
 {
@@ -11,32 +11,18 @@ namespace desafioBack.Services
         {
             _dbContext = dbContext;
         }
-        public IEnumerable<Product> GetProductList()
+        
+        public User AddProduct(User user)
         {
-            return _dbContext.Products.ToList();
-        }
-        public Product GetProductById(Guid id)
-        {
-            return _dbContext.Products.Where(x => x.ProductId == id).FirstOrDefault();
-        }
-        public Product AddProduct(Product product)
-        {
-            var result = _dbContext.Products.Add(product);
+            var result = _dbContext.User.Add(user);
             _dbContext.SaveChanges();
             return result.Entity;
         }
-        public Product UpdateProduct(Product product)
+        public Subscription UpdateProduct(Subscription subscription)
         {
-            var result = _dbContext.Products.Update(product);
+            var result = _dbContext.Subscription.Update(subscription);
             _dbContext.SaveChanges();
             return result.Entity;
-        }
-        public bool DeleteProduct(Guid Id)
-        {
-            var filteredData = _dbContext.Products.Where(x => x.ProductId == Id).FirstOrDefault();
-            var result = _dbContext.Remove(filteredData);
-            _dbContext.SaveChanges();
-            return result != null ? true : false;
         }
     }
 }

@@ -1,13 +1,12 @@
-﻿using desafioBack.Models;
+﻿using Models;
 
 namespace desafioBack.Services
 {
     public interface IProductService
     {
-        public IEnumerable<Product> GetProductList();
-        public Product GetProductById(Guid id);
-        public Product AddProduct(Product product);
-        public Product UpdateProduct(Product product);
-        public bool DeleteProduct(Guid Id);
+
+        public User AddProduct(User user);
+        public Subscription UpdateProduct(Subscription subscription);
+
     }
 }
