@@ -1,5 +1,4 @@
-﻿using desafioBack.Models;
-using desafioBack.RabitMQ;
+﻿using desafioBack.RabitMQ;
 using desafioBack.Services;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -17,49 +16,24 @@ namespace desafioBack.Controllers
             productService = _productService;
             _rabitMQProducer = rabitMQProducer;
         }
-        [HttpGet("productlist")]
-        public IEnumerable<Product> ProductList()
-        {
-            var productList = productService.GetProductList();
-            return productList;
-        }
-        [HttpGet("getproductbyid")]
-        public Product GetProductById(Guid Id)
-        {
-            return productService.GetProductById(Id);
-        }
-        [HttpPost("addproduct")]
-        public Product AddProduct(InsertProduct insertProduct)
-        {
-            var product = new Product
-            {
-                ProductDescription = insertProduct.ProductDescription,
-                ProductName = insertProduct.ProductName,
-                ProductPrice = insertProduct.ProductPrice,
-                ProductStock = insertProduct.ProductStock
-            };
-            var productData = productService.AddProduct(product);
-            //send the inserted product data to the queue and consumer will listening this data from queue
-            _rabitMQProducer.SendProductMessage(productData);
-            return productData;
-        }
-        [HttpPut("updateproduct")]
-        public Product UpdateProduct(InsertProduct insertProduct)
-        {
-            var product = new Product
-            {
-                ProductDescription = insertProduct.ProductDescription,
-                ProductName = insertProduct.ProductName,
-                ProductPrice = insertProduct.ProductPrice,
-                ProductStock = insertProduct.ProductStock
-            };
 
-            return productService.UpdateProduct(product);
-        }
-        [HttpDelete("deleteproduct")]
-        public bool DeleteProduct(Guid Id)
+        [HttpPost("SUBSCRIPTION_PURCHASED")]
+        public User AddProduct(User user)
         {
-            return productService.DeleteProduct(Id);
+            //send the inserted product data to the queue and consumer will listening this data from queue
+            _rabitMQProducer.SendProductMessage(user);
+            return user;
         }
+        [HttpPut("SUBSCRIPTION_CANCELED")]
+        public Subscription UpdateProduct(Subscription subscription)
+        {
+            return productService.UpdateProduct(subscription);
+        }
+
+        //[HttpPut("SUBSCRIPTION_RESTARTED")]
+        //public Product UpdateProduct(InsertProduct insertProduct)
+        //{
+        //    return productService.UpdateProduct(product);
+        //}
     }
 }
