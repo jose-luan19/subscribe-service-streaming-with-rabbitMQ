@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQ", "RabbitMQ\Rabbit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{F44C5E66-0A8E-4BD7-8C3D-19A8128E5C75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQProduct.Console", "RabbitMQProduct.Console\RabbitMQProduct.Console.csproj", "{06ABF784-C790-46E6-BCD8-E27397033DDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQConsumer", "RabbitMQProduct.Console\RabbitMQConsumer.csproj", "{06ABF784-C790-46E6-BCD8-E27397033DDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
