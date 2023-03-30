@@ -1,39 +1,33 @@
-﻿
-using desafioBack.Infra;
+﻿using desafioBack.Infra;
 using Infra.Repository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Models;
-using System.Security.Cryptography.X509Certificates;
 
 namespace desafioBack.Services
 {
     public class SubService : ISubService
     {
-        private readonly IARepository<User> _userRepository;
-        private readonly IARepository<Status> _statusRepository;
-        private readonly IARepository<Subscription> _subscriptionRepository;
-        private readonly IARepository<EventHistory> _eventHistoryRepository;
-        public SubService
-            (
-            IARepository<User> userRepository,
-            IARepository<Status> statusRepository,
-            IARepository<Subscription> subscriptionRepository,
-            IARepository<EventHistory> eventHistoryRepository
-            )
-        {
-            _userRepository = userRepository;
-            _statusRepository = statusRepository;
-            _subscriptionRepository = subscriptionRepository;
-            _eventHistoryRepository = eventHistoryRepository;
-        }
+        private UserRepository _userRepository;
+        private StatusRepository _statusRepository;
+        private SubscriptionRepository _subscriptionRepository;
+        private EventHistoryRepository _eventHistoryRepository;
 
-        public  User AddSub(User user)
-        {
-            var status = _statusRepository.Queryable().Where(x => x.Id == Guid.Parse("c35834ae-6acf-45d8-9f75-95ff9035bee3")).ToList().First();
 
-            var sub = new Subscription 
-            { 
+        public async Task<User> AddSubAsync(User user, DbContextClass _context)
+        {
+
+            NewRepositorys(_context);
+
+            var status = await _statusRepository.
+                                Queryable()
+                                .Where(x => x.Id == Guid.Parse("c35834ae-6acf-45d8-9f75-95ff9035bee3"))
+                                .FirstOrDefaultAsync();
+
+            var sub = new Subscription
+            {
                 User = user,
-                UserId= user.Id,
+                UserId = user.Id,
                 Status = status,
                 StatusId = status.Id,
             };
@@ -47,7 +41,7 @@ namespace desafioBack.Services
 
             sub.EventHistory = eventHistory;
             user.Subscription = sub;
-            status.Subscription= sub;
+            status.Subscription = sub;
 
 
             _userRepository.Insert(user);
@@ -60,6 +54,15 @@ namespace desafioBack.Services
 
             return user;
         }
+
+        private void NewRepositorys(DbContextClass context)
+        {
+            _userRepository = new UserRepository(context);
+            _subscriptionRepository = new SubscriptionRepository(context);
+            _statusRepository = new StatusRepository(context);
+            _eventHistoryRepository = new EventHistoryRepository(context);
+        }
+
         public void CanceledProduct(Guid id)
         {
             //var result = _dbContext.Subscription.Update(subscription);

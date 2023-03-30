@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using desafioBack.Infra;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Models;
@@ -14,14 +15,12 @@ namespace desafioBack.Services
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly string queue = "subs";
-        private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly ISubService _subService;
+        private readonly IServiceProvider _serviceProvider;
+        private  ISubService _subService;
 
-        public MessageConsumer(IServiceScopeFactory serviceScopeFactory)
+        public MessageConsumer(IServiceProvider serviceProvider)
         {
-            _serviceScopeFactory = serviceScopeFactory;
-            using var scope = _serviceScopeFactory.CreateScope();
-            _subService = scope.ServiceProvider.GetRequiredService<ISubService>();
+            _serviceProvider = serviceProvider;
 
             var factory = new ConnectionFactory
             {
@@ -37,22 +36,27 @@ namespace desafioBack.Services
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += async (model, eventArgs) =>
-            {
-                var body = eventArgs.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine("Product message received: " + message);
+            using (var scope = _serviceProvider.CreateScope()){
+                _subService = scope.ServiceProvider.GetRequiredService<ISubService>();
+                var context = scope.ServiceProvider.GetRequiredService<DbContextClass>();
 
-                if (message.IndexOf("FullName") >= 0)
+                consumer.Received += async (model, eventArgs) =>
                 {
-                   var user = JsonConvert.DeserializeObject<User>(message);
-                   var saved = _subService.AddSub(user);
-                }
-                else
-                {
-                   var sub = JsonConvert.DeserializeObject<Guid>(message);
-                }
-            };
+                    var body = eventArgs.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    Console.WriteLine("Product message received: " + message);
+
+                    if (message.IndexOf("FullName") >= 0)
+                    {
+                       var user = JsonConvert.DeserializeObject<User>(message);
+                       var saved = await _subService.AddSubAsync(user, context);
+                    }
+                    else
+                    {
+                       var sub = JsonConvert.DeserializeObject<Guid>(message);
+                    }
+                };
+            }
 
             _channel.BasicConsume(queue: queue, autoAck: true, consumer: consumer);
 
