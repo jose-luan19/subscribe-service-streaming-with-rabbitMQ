@@ -29,14 +29,14 @@ namespace desafioBack.Controllers
         [HttpPut("SUBSCRIPTION_CANCELED/{id}")]
         public async Task<ActionResult> CanceledSub(Guid id)
         {
-            _rabitMQProducer.SendProductMessage(id);
+            _rabitMQProducer.SendProductMessage(id.ToString() + "[CANCELED]");
             return Ok();
         }
 
         [HttpPut("SUBSCRIPTION_RESTARTED/{id}")]
         public async Task<ActionResult> RestartedSub(Guid id)
         {
-            _rabitMQProducer.SendProductMessage(id);
+            _rabitMQProducer.SendProductMessage(id.ToString() + "[RESTARTED]");
             return Ok();
 
         }

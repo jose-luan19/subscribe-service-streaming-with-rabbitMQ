@@ -1,7 +1,6 @@
 ﻿using desafioBack.Infra;
 using Infra.Repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Models;
 
 namespace desafioBack.Services
@@ -13,35 +12,33 @@ namespace desafioBack.Services
         private SubscriptionRepository _subscriptionRepository;
         private EventHistoryRepository _eventHistoryRepository;
 
+        public SubService(DbContextClass context)
+        {
+            _userRepository = new UserRepository(context);
+            _subscriptionRepository = new SubscriptionRepository(context);
+            _statusRepository = new StatusRepository(context);
+            _eventHistoryRepository = new EventHistoryRepository(context);
+        }
 
-        public async Task<User> AddSubAsync(User user, DbContextClass _context)
+
+        public User CreateSub(User user)
         {
 
-            NewRepositorys(_context);
+            //NewRepositorys(_context);
 
-            var status = await _statusRepository.
-                                Queryable()
-                                .Where(x => x.Id == Guid.Parse("c35834ae-6acf-45d8-9f75-95ff9035bee3"))
-                                .FirstOrDefaultAsync();
+            var status = GetStatusInDatabase("c35834ae-6acf-45d8-9f75-95ff9035bee3");
 
             var sub = new Subscription
             {
                 User = user,
-                UserId = user.Id,
                 Status = status,
-                StatusId = status.Id,
             };
 
             var eventHistory = new EventHistory
             {
                 Subscription = sub,
-                SubscriptionId = sub.Id,
                 Type = "Created"
             };
-
-            sub.EventHistory = eventHistory;
-            user.Subscription = sub;
-            status.Subscription = sub;
 
 
             _userRepository.Insert(user);
@@ -55,25 +52,67 @@ namespace desafioBack.Services
             return user;
         }
 
-        private void NewRepositorys(DbContextClass context)
+
+
+        public void CanceledSub(Guid id)
         {
-            _userRepository = new UserRepository(context);
-            _subscriptionRepository = new SubscriptionRepository(context);
-            _statusRepository = new StatusRepository(context);
-            _eventHistoryRepository = new EventHistoryRepository(context);
+            var sub = SelectSubscription(id);
+
+            var status = GetStatusInDatabase("03f4ec06-8cc0-4e9f-af16-4b40d912fac1");
+
+            var eventCanceled = new EventHistory
+            {
+                Subscription = sub,
+                Type = "Canceled"
+            };
+            sub.Status = status;
+            sub.Update_at = DateTime.Now;
+
+            _eventHistoryRepository.Insert(eventCanceled);
+            _subscriptionRepository.Update(sub);
+
+
+            _eventHistoryRepository.Commit();
+            _subscriptionRepository.Commit();
+        }
+        public void RestartedSub(Guid id)
+        {
+            var sub = SelectSubscription(id);
+            var status = GetStatusInDatabase("c35834ae-6acf-45d8-9f75-95ff9035bee3");
+
+            var eventRestated = new EventHistory
+            {
+                Subscription= sub,
+                Type = "Restarted"
+            };
+            sub.Status = status;
+            sub.Update_at = DateTime.Now;
+
+            _eventHistoryRepository.Insert(eventRestated);
+            _subscriptionRepository.Update(sub);
+
+
+            _eventHistoryRepository.Commit();
+            _subscriptionRepository.Commit();
+
         }
 
-        public void CanceledProduct(Guid id)
+        private Status GetStatusInDatabase(string id)
         {
-            //var result = _dbContext.Subscription.Update(subscription);
-            //_dbContext.SaveChanges();
-            //return result.Entity;
+            var status =  _statusRepository.
+                                Queryable()
+                                .Where(x => x.Id == Guid.Parse(id))
+                                .FirstOrDefault();
+            return status;
         }
-        public void RestartedProduct(Guid id)
+
+        private Subscription SelectSubscription(Guid id)
         {
-            //var result = _dbContext.Subscription.Update(subscription);
-            //_dbContext.SaveChanges();
-            //return result.Entity;
+
+            #pragma warning disable CS8603 // Possível retorno de referência nula.
+            return _subscriptionRepository.Queryable().Where(x => x.Id == id).FirstOrDefault();
+            #pragma warning restore CS8603 // Possível retorno de referência nula.
         }
+
     }
 }

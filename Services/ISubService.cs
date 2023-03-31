@@ -1,14 +1,13 @@
-﻿using desafioBack.Infra;
-using Models;
+﻿using Models;
 
 namespace desafioBack.Services
 {
     public interface ISubService
     {
 
-        public Task<User> AddSubAsync(User user, DbContextClass _context);
-        public void CanceledProduct(Guid id);
-        public void RestartedProduct(Guid id);
+        public User CreateSub(User user);
+        public void CanceledSub(Guid id);
+        public void RestartedSub(Guid id);
 
     }
 }

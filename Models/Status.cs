@@ -4,6 +4,6 @@
     {
         public Guid Id { get; set; }
         public string StatusName { get; set; }
-        public Subscription Subscription { get; set; }
+        public List<Subscription> Subscriptions { get; set; }
     }
 }

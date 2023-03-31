@@ -1,7 +1,5 @@
-﻿using desafioBack.Infra;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Models;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -16,7 +14,7 @@ namespace desafioBack.Services
         private readonly IModel _channel;
         private readonly string queue = "subs";
         private readonly IServiceProvider _serviceProvider;
-        private  ISubService _subService;
+        private ISubService _subService;
 
         public MessageConsumer(IServiceProvider serviceProvider)
         {
@@ -36,27 +34,41 @@ namespace desafioBack.Services
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var consumer = new EventingBasicConsumer(_channel);
-            using (var scope = _serviceProvider.CreateScope()){
-                _subService = scope.ServiceProvider.GetRequiredService<ISubService>();
-                var context = scope.ServiceProvider.GetRequiredService<DbContextClass>();
 
-                consumer.Received += async (model, eventArgs) =>
+            consumer.Received += (model, eventArgs) =>
+            {
+                using (var scope = _serviceProvider.CreateScope())
                 {
+                    _subService = scope.ServiceProvider.GetRequiredService<ISubService>();
+
                     var body = eventArgs.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     Console.WriteLine("Product message received: " + message);
 
                     if (message.IndexOf("FullName") >= 0)
                     {
-                       var user = JsonConvert.DeserializeObject<User>(message);
-                       var saved = await _subService.AddSubAsync(user, context);
+                        var user = JsonConvert.DeserializeObject<User>(message);
+                        var saved = _subService.CreateSub(user);
                     }
                     else
                     {
-                       var sub = JsonConvert.DeserializeObject<Guid>(message);
+                        var messageSplit = message.Split('[');
+                        var check = messageSplit[1].Remove(messageSplit[1].IndexOf(']'));
+                        var id = messageSplit[0] + "\"";
+
+                        if (check == "CANCELED")
+                        {
+                            var sub = JsonConvert.DeserializeObject<Guid>(id);
+                            _subService.CanceledSub(sub);
+                        }
+                        if (check == "RESTARTED")
+                        {
+                            var sub = JsonConvert.DeserializeObject<Guid>(id);
+                            _subService.RestartedSub(sub);
+                        }
                     }
-                };
-            }
+                }
+            };
 
             _channel.BasicConsume(queue: queue, autoAck: true, consumer: consumer);
 

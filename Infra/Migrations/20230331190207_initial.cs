@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -96,20 +97,17 @@ namespace Infra.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_EventHistory_SubscriptionId",
                 table: "EventHistory",
-                column: "SubscriptionId",
-                unique: true);
+                column: "SubscriptionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscription_StatusId",
                 table: "Subscription",
-                column: "StatusId",
-                unique: true);
+                column: "StatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscription_UserId",
                 table: "Subscription",
-                column: "UserId",
-                unique: true);
+                column: "UserId");
         }
 
         /// <inheritdoc />
