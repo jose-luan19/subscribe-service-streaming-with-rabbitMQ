@@ -1,4 +1,5 @@
-﻿using Infra.Seed;
+﻿using Infra.Mapping;
+using Infra.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Models;
@@ -24,20 +25,10 @@ namespace desafioBack.Infra
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                        .HasOne(x => x.Subscription)
-                        .WithOne(x => x.User)
-                        .HasForeignKey<Subscription>(p => p.UserId);
-
-            modelBuilder.Entity<Status>()
-                        .HasOne(x => x.Subscription)
-                        .WithOne(x => x.Status)
-                        .HasForeignKey<Subscription>(p => p.StatusId);
-
-            modelBuilder.Entity<Subscription>()
-                        .HasOne(x => x.EventHistory)
-                        .WithOne(x => x.Subscription)
-                        .HasForeignKey<EventHistory>(p => p.SubscriptionId);
+            modelBuilder.ApplyConfiguration(new SubscriptionMap());
+            modelBuilder.ApplyConfiguration(new UserMap());
+            modelBuilder.ApplyConfiguration(new EventHistoryMap());
+            modelBuilder.ApplyConfiguration(new StatusMap());
 
             modelBuilder.GenerateSeed();
         }

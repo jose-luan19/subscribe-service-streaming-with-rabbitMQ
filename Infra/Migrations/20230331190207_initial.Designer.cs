@@ -12,7 +12,7 @@ using desafioBack.Infra;
 namespace Infra.Migrations
 {
     [DbContext(typeof(DbContextClass))]
-    [Migration("20230317200042_initial")]
+    [Migration("20230331190207_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -43,8 +43,7 @@ namespace Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubscriptionId")
-                        .IsUnique();
+                    b.HasIndex("SubscriptionId");
 
                     b.ToTable("EventHistory");
                 });
@@ -96,11 +95,9 @@ namespace Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StatusId")
-                        .IsUnique();
+                    b.HasIndex("StatusId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Subscription");
                 });
@@ -126,8 +123,8 @@ namespace Infra.Migrations
             modelBuilder.Entity("Models.EventHistory", b =>
                 {
                     b.HasOne("Models.Subscription", "Subscription")
-                        .WithOne("EventHistory")
-                        .HasForeignKey("Models.EventHistory", "SubscriptionId")
+                        .WithMany("Histories")
+                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -137,14 +134,14 @@ namespace Infra.Migrations
             modelBuilder.Entity("Models.Subscription", b =>
                 {
                     b.HasOne("Models.Status", "Status")
-                        .WithOne("Subscription")
-                        .HasForeignKey("Models.Subscription", "StatusId")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Models.User", "User")
-                        .WithOne("Subscription")
-                        .HasForeignKey("Models.Subscription", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -155,20 +152,12 @@ namespace Infra.Migrations
 
             modelBuilder.Entity("Models.Status", b =>
                 {
-                    b.Navigation("Subscription")
-                        .IsRequired();
+                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("Models.Subscription", b =>
                 {
-                    b.Navigation("EventHistory")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Models.User", b =>
-                {
-                    b.Navigation("Subscription")
-                        .IsRequired();
+                    b.Navigation("Histories");
                 });
 #pragma warning restore 612, 618
         }
