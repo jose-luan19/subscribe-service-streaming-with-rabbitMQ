@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+  desafioback:
+    image: ${DOCKER_REGISTRY-}desafioback
+    build:
+      context: .
+      dockerfile: desafioBack/Dockerfile
+    container_name: subscribeRabbit2023
+    restart: always
+    depends_on:
+      - rabbit
+      - sql-server
+    networks:
+      - message
+      - database
+
+  rabbit:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    hostname: "rabbitmq"
+    labels:
+      NAME: "rabbitmq"
+    ports:
+    - "4369:4369"
+    - "5671:5671"
+    - "5672:5672"
+    - "25672:25672"
+    - "15671:15671"
+    - "15672:15672"
+    networks:
+      - message
+
+  sql-server:
+    image: mcr.microsoft.com/mssql/server
+    container_name: sql-server
+    environment:
+      SA_PASSWORD: subscribeRabbit2023@
+      ACCEPT_EULA: Y
+    ports:
+      - "1433:1433"
+    networks:
+      - database
+
+networks:
+  message:
+  database:

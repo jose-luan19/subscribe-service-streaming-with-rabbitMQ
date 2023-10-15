@@ -9,8 +9,12 @@ namespace desafioBack.RabitMQ
         {
             var factory = new ConnectionFactory
             {
-                HostName = "localhost"
+                HostName = "rabbitmq",
+                Port = 5672,
+                UserName = "guest",
+                Password = "guest"
             };
+
             var connection = factory.CreateConnection();
             using
             var channel = connection.CreateModel();
