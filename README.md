@@ -5,4 +5,4 @@
 docker-compose up
 ```
 ## URL para acessar o swagger e testar a API
-https://localhost:54704/swagger/index.html
+https://localhost:7088/swagger/index.html
